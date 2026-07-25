@@ -16,7 +16,7 @@ Typical workflow
 
 1. Open the newest crash dump.
 
-    (lldb) latest-mdmp
+    (lldb) xr-latest-mdmp
 
 This searches DUMP_DIR for the newest *.mdmp and executes
 
@@ -24,14 +24,14 @@ This searches DUMP_DIR for the newest *.mdmp and executes
 
 2. Load symbols.
 
-    (lldb) load-symbols
+    (lldb) xr-load-symbols
 
 This loads the project's PDB so LLDB can resolve source locations,
 function names, variables and types.
 
 3. Get a quick overview of the crash.
 
-    (lldb) crash
+    (lldb) xr-crash
 
 Output:
     • selects thread 1
@@ -49,7 +49,7 @@ At this point you know exactly where execution stopped.
 
 4. Determine why it crashed.
 
-    (lldb) why
+    (lldb) xr-why
 
 Output:
     • function arguments
@@ -66,7 +66,7 @@ Typical things to look for:
 
 5. Inspect the current object.
 
-    (lldb) this
+    (lldb) xr-this
 
 Shows
 
@@ -77,13 +77,13 @@ Useful inside member functions to inspect the current object's state.
 
 6. Show only function arguments.
 
-    (lldb) args
+    (lldb) xr-args
 
 Useful when you only care about inputs.
 
 7. Show only local variables.
 
-    (lldb) locals
+    (lldb) xr-locals
 
 Useful after stepping into a function.
 
@@ -95,31 +95,31 @@ Current frame:
 
 Move to the caller:
 
-    (lldb) upn
+    (lldb) xr-upn
 
 Move several frames:
 
-    (lldb) upn 3
+    (lldb) xr-upn 3
 
 Move back toward the crash:
 
-    (lldb) downn
+    (lldb) xr-downn
 
 or
 
-    (lldb) downn 2
+    (lldb) xr-downn 2
 
 Each command automatically prints information about the selected frame.
 
 9. View the surrounding source.
 
-    (lldb) source
+    (lldb) xr-source
 
 Shows approximately twenty lines around the current location.
 
 10. View generated assembly.
 
-    (lldb) asm
+    (lldb) xr-asm
 
 Shows approximately thirty instructions around the current PC.
 
@@ -131,7 +131,7 @@ Useful when:
 
 11. Show only the crashing instruction.
 
-    (lldb) pc
+    (lldb) xr-pc
 
 Useful when identifying the exact instruction that faulted.
 
@@ -144,7 +144,7 @@ Combined with register values you can immediately determine whether RCX
 
 12. Inspect the virtual table pointer.
 
-    (lldb) vptr
+    (lldb) xr-vptr
 
 Shows
 
@@ -158,7 +158,7 @@ Useful for detecting
 
 13. Quick object sanity check.
 
-    (lldb) sus
+    (lldb) xr-sus
 
 Displays
 
@@ -171,7 +171,7 @@ Useful when an object "looks wrong" and you want a quick overview.
 
 14. Spawn-related debugging.
 
-    (lldb) spawn
+    (lldb) xr-spawn
 
 Designed for crashes during
 
@@ -194,69 +194,69 @@ spawning.
 Example session
 ---------------
 
-(lldb) latest-mdmp
+(lldb) xr-latest-mdmp
 
-(lldb) load-symbols
+(lldb) xr-load-symbols
 
-(lldb) crash
+(lldb) xr-crash
 
 frame #0:
 CInventoryOwner::load()
 
-(lldb) why
+(lldb) xr-why
 
 -> inventory = 0x0
 -> this = 0x000001D29A123450
 
-(lldb) this
+(lldb) xr-this
 
 Inspect the object's fields.
 
-(lldb) upn
+(lldb) xr-upn
 
 Move to
 
 CAI_Stalker::load()
 
-(lldb) locals
+(lldb) xr-locals
 
 Inspect local variables.
 
-(lldb) source
+(lldb) xr-source
 
 Open the surrounding source code.
 
-(lldb) asm
+(lldb) xr-asm
 
 Inspect the generated instructions.
 
-(lldb) pc
+(lldb) xr-pc
 
 Verify the exact instruction that faulted.
 
-(lldb) vptr
+(lldb) xr-vptr
 
 Ensure the object's vtable pointer is valid.
 
 If the crash occurred during spawning:
 
-(lldb) spawn
+(lldb) xr-spawn
 
 ===============================================================================
 
 Recommended investigation order
 
-    latest-mdmp
-    load-symbols
-    crash
-    why
-    this
-    upn / downn
-    source
-    asm
-    pc
-    vptr
-    sus
+    xr-latest-mdmp
+    xr-load-symbols
+    xr-crash
+    xr-why
+    xr-this
+    xr-upn / xr-downn
+    xr-source
+    xr-asm
+    xr-pc
+    xr-vptr
+    xr-sus
 
 Following this order usually identifies the failing object, the failing
 instruction, and the root cause in only a few commands.
@@ -291,7 +291,7 @@ def latest_mdmp(
     This is typically the first command to run after a crash.
 
     Example:
-        (lldb) latest-mdmp
+        (lldb) xr-latest-mdmp
     """
     dumps = list(DUMP_DIR.glob("*.mdmp"))
     if not dumps:
@@ -319,7 +319,7 @@ def load_symbols(
     Use after opening a dump if symbols were not loaded automatically.
 
     Example:
-        (lldb) load-symbols
+        (lldb) xr-load-symbols
     """
     debugger.HandleCommand(f'target symbols add "{PDB}"')
 
@@ -341,7 +341,7 @@ def crash(debugger, command, result, _):
         - What was the machine state?
 
     Example:
-        (lldb) crash
+        (lldb) xr-crash
     """
     cmds = [
         "thread select 1",
@@ -370,7 +370,7 @@ def why(debugger, command, result, _):
         - the faulting instruction
 
     Example:
-        (lldb) why
+        (lldb) xr-why
     """
     cmds = [
         "frame variable",
@@ -391,7 +391,7 @@ def args(debugger, command, result, _):
     Useful for inspecting function inputs.
 
     Example:
-        (lldb) args
+        (lldb) xr-args
     """
     debugger.HandleCommand("frame variable --show-types")
 
@@ -405,7 +405,7 @@ def locals(debugger, command, result, _):
     Useful when debugging a large function whose arguments are already known.
 
     Example:
-        (lldb) locals
+        (lldb) xr-locals
     """
     debugger.HandleCommand("frame variable --no-args")
 
@@ -421,7 +421,7 @@ def this(debugger, command, result, _):
     Useful when stopped inside a member function.
 
     Example:
-        (lldb) this
+        (lldb) xr-this
     """
     debugger.HandleCommand("frame variable this *this")
 
@@ -442,7 +442,7 @@ def spawn(debugger, command, result, _):
         cl_Process_Spawn()
 
     Example:
-        (lldb) spawn
+        (lldb) xr-spawn
     """
     debugger.HandleCommand("bt")
     debugger.HandleCommand("up")
@@ -457,8 +457,8 @@ def upn(debugger, command, result, _):
         up 1
 
     Examples:
-        (lldb) upn
-        (lldb) upn 3
+        (lldb) xr-upn
+        (lldb) xr-upn 3
     """
     n = int(command or 1)
     debugger.HandleCommand(f"up {n}")
@@ -473,8 +473,8 @@ def downn(debugger, command, result, _):
         down 1
 
     Examples:
-        (lldb) downn
-        (lldb) downn 2
+        (lldb) xr-downn
+        (lldb) xr-downn 2
     """
     n = int(command or 1)
     debugger.HandleCommand(f"down {n}")
@@ -490,7 +490,7 @@ def source(debugger, command, result, _):
     Useful immediately after selecting a frame.
 
     Example:
-        (lldb) source
+        (lldb) xr-source
     """
     debugger.HandleCommand("source list -c 20")
 
@@ -507,7 +507,7 @@ def asm(debugger, command, result, _):
         - verifying compiler output
 
     Example:
-        (lldb) asm
+        (lldb) xr-asm
     """
     debugger.HandleCommand("disassemble --pc --count 30")
 
@@ -519,7 +519,7 @@ def pc(debugger, command, result, _):
     Useful for quickly identifying the exact instruction that faulted.
 
     Example:
-        (lldb) pc
+        (lldb) xr-pc
     """
     debugger.HandleCommand("disassemble --pc --count 1")
 
@@ -536,7 +536,7 @@ def vptr(debugger, command, result, _):
     Must be executed inside a non-static member function.
 
     Example:
-        (lldb) vptr
+        (lldb) xr-vptr
     """
     debugger.HandleCommand("expression/x *(void**)this")
 
@@ -560,7 +560,7 @@ def sus(debugger, command, result, _):
         - unexpected control flow
 
     Example:
-        (lldb) sus
+        (lldb) xr-sus
     """
     cmds = [
         "frame variable this",
@@ -576,17 +576,20 @@ def __lldb_init_module(
     debugger: lldb.SBDebugger,
     internal_dict: dict[str, object],
 ) -> None:
-    debugger.HandleCommand("command script add -f commands.latest_mdmp latest-mdmp")
-    debugger.HandleCommand("command script add -f commands.load_symbols load-symbols")
-    debugger.HandleCommand("command script add -f commands.crash crash")
-    debugger.HandleCommand("command script add -f commands.why why")
-    debugger.HandleCommand("command script add -f commands.args args")
-    debugger.HandleCommand("command script add -f commands.locals locals")
-    debugger.HandleCommand("command script add -f commands.this this")
-    debugger.HandleCommand("command script add -f commands.spawn spawn")
-    debugger.HandleCommand("command script add -f commands.upn upn")
-    debugger.HandleCommand("command script add -f commands.downn downn")
-    debugger.HandleCommand("command script add -f commands.source source")
-    debugger.HandleCommand("command script add -f commands.asm asm")
-    debugger.HandleCommand("command script add -f commands.pc pc")
-    debugger.HandleCommand("command script add -f commands.vptr vptr")
+    debugger.HandleCommand("command script add -f commands.latest_mdmp xr-latest-mdmp")
+    debugger.HandleCommand(
+        "command script add -f commands.load_symbols xr-load-symbols"
+    )
+    debugger.HandleCommand("command script add -f commands.crash xr-crash")
+    debugger.HandleCommand("command script add -f commands.why xr-why")
+    debugger.HandleCommand("command script add -f commands.args xr-args")
+    debugger.HandleCommand("command script add -f commands.locals xr-locals")
+    debugger.HandleCommand("command script add -f commands.this xr-this")
+    debugger.HandleCommand("command script add -f commands.spawn xr-spawn")
+    debugger.HandleCommand("command script add -f commands.upn xr-upn")
+    debugger.HandleCommand("command script add -f commands.downn xr-downn")
+    debugger.HandleCommand("command script add -f commands.source xr-source")
+    debugger.HandleCommand("command script add -f commands.asm xr-asm")
+    debugger.HandleCommand("command script add -f commands.pc xr-pc")
+    debugger.HandleCommand("command script add -f commands.vptr xr-vptr")
+    debugger.HandleCommand("command script add -f commands.sus xr-ssu")
