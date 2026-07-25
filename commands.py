@@ -492,7 +492,22 @@ def source(debugger, command, result, _):
     Example:
         (lldb) xr-source
     """
-    debugger.HandleCommand("source list -c 20")
+    target = debugger.GetSelectedTarget()
+    process = target.GetProcess()
+    thread = process.GetSelectedThread()
+    frame = thread.GetSelectedFrame()
+
+    entry = frame.GetLineEntry()
+    if not entry.IsValid():
+        result.SetError("No source location.")
+        return
+
+    file = entry.GetFileSpec()
+    line = entry.GetLine()
+
+    start = max(1, line - 10)
+
+    debugger.HandleCommand(f'source list -f "{file}" -l {start} -c 20')
 
 
 def asm(debugger, command, result, _):
@@ -509,7 +524,13 @@ def asm(debugger, command, result, _):
     Example:
         (lldb) xr-asm
     """
-    debugger.HandleCommand("disassemble --pc --count 30")
+    target = debugger.GetSelectedTarget()
+    process = target.GetProcess()
+    thread = process.GetSelectedThread()
+    frame = thread.GetSelectedFrame()
+    pc = frame.GetPCAddress().GetLoadAddress(target)
+    start = max(0, pc - 16 * 10)
+    debugger.HandleCommand(f"disassemble --start-address {start:#x} --count 20")
 
 
 def pc(debugger, command, result, _):
