@@ -592,4 +592,4 @@ def __lldb_init_module(
     debugger.HandleCommand("command script add -f commands.asm xr-asm")
     debugger.HandleCommand("command script add -f commands.pc xr-pc")
     debugger.HandleCommand("command script add -f commands.vptr xr-vptr")
-    debugger.HandleCommand("command script add -f commands.sus xr-ssu")
+    debugger.HandleCommand("command script add -f commands.sus xr-sus")
