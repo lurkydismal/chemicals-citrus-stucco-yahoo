@@ -529,8 +529,8 @@ def asm(debugger, command, result, _):
     thread = process.GetSelectedThread()
     frame = thread.GetSelectedFrame()
     pc = frame.GetPCAddress().GetLoadAddress(target)
-    start = max(0, pc - 16 * 10)
-    debugger.HandleCommand(f"disassemble --start-address {start:#x} --count 20")
+    start = max(0, pc - 64)
+    debugger.HandleCommand(f"disassemble --start-address {start:#x} --count 40")
 
 
 def pc(debugger, command, result, _):
