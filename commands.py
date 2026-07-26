@@ -510,11 +510,17 @@ def source(debugger, command, result, _):
     debugger.HandleCommand(f'source list -f "{file}" -l {start} -c 20')
 
 
-def asm(debugger, command, result, _):
+def asm(
+    debugger: lldb.SBDebugger,
+    command: str,
+    result: lldb.SBCommandReturnObject,
+    internal_dict: dict[str, object],
+) -> None:
     """
     Show disassembly around the current instruction.
 
-    Displays roughly thirty instructions surrounding the program counter.
+    Displays ten instructions before and after the current instruction,
+    highlighting the current instruction with "->".
 
     Useful for:
         - optimized builds
@@ -528,9 +534,46 @@ def asm(debugger, command, result, _):
     process = target.GetProcess()
     thread = process.GetSelectedThread()
     frame = thread.GetSelectedFrame()
+
+    function = frame.GetFunction()
+    if not function.IsValid():
+        result.SetError("Current frame is not inside a function.")
+        return
+
     pc = frame.GetPCAddress().GetLoadAddress(target)
-    start = max(0, pc - 64)
-    debugger.HandleCommand(f"disassemble --start-address {start:#x} --count 40")
+
+    instructions = function.GetInstructions(target)
+
+    current = None
+    for i in range(instructions.GetSize()):
+        inst = instructions.GetInstructionAtIndex(i)
+        if inst.GetAddress().GetLoadAddress(target) == pc:
+            current = i
+            break
+
+    if current is None:
+        result.SetError("Failed to locate current instruction.")
+        return
+
+    first = max(0, current - 10)
+    last = min(instructions.GetSize(), current + 11)
+
+    for i in range(first, last):
+        inst = instructions.GetInstructionAtIndex(i)
+
+        marker = "->" if i == current else "  "
+
+        addr = inst.GetAddress().GetLoadAddress(target)
+        mnemonic = inst.GetMnemonic(target)
+        operands = inst.GetOperands(target)
+        comment = inst.GetComment(target)
+
+        line = f"{marker} {addr:#018x}: {mnemonic:<8} {operands}"
+
+        if comment:
+            line += f" ; {comment}"
+
+        result.AppendMessage(line)
 
 
 def pc(debugger, command, result, _):
