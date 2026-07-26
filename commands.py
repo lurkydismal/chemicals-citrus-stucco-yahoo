@@ -264,15 +264,19 @@ instruction, and the root cause in only a few commands.
 ===============================================================================
 """
 
-EXE = Path(
-    "/mnt/hdd/SG094/STALKER_GAMMA (1)/STALKER_GAMMA/game_info/data/Anomaly/bin/AnomalyDX11.exe"
-)
-DUMP_DIR = Path(
-    "/mnt/hdd/SG094/STALKER_GAMMA (1)/STALKER_GAMMA/game_info/data/Anomaly/appdata/logs"
-)
-PDB = Path(
-    "/mnt/hdd/SG094/STALKER_GAMMA (1)/STALKER_GAMMA/game_info/data/Anomaly/bin/AnomalyDX11.pdb"
-)
+EXE = None
+DUMP_DIR = None
+PDB = None
+
+
+def configure(anomaly_dir: str):
+    global EXE, DUMP_DIR, PDB
+
+    root = Path(anomaly_dir)
+
+    EXE = root / "bin" / "AnomalyDX11.exe"
+    PDB = root / "bin" / "AnomalyDX11.pdb"
+    DUMP_DIR = root / "appdata" / "logs"
 
 
 def latest_mdmp(

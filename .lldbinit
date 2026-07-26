@@ -1,1 +1,5 @@
 command script import ~/.config/lldb/commands.py
+
+script import os
+script import commands
+script commands.configure(os.environ["ANOMALY_ROOT"])
